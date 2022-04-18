@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.io as pio
 from plotly.subplots import make_subplots
 from math import atan2, pi
+import os
 
 
 def load_dataset(filename: str) -> Tuple[np.ndarray, np.ndarray]:
@@ -29,7 +30,7 @@ def load_dataset(filename: str) -> Tuple[np.ndarray, np.ndarray]:
         Class vector specifying for each sample its class
 
     """
-    data = np.load(filename)
+    data = np.load(os.path.join(r"..\datasets", filename))
     return data[:, 0:2], data[:, 2]
 
 def run_perceptron():

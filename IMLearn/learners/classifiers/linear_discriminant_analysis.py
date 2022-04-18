@@ -23,7 +23,7 @@ class LDA(BaseEstimator):
         The inverse of the estimated features covariance. To be set in `LDA.fit`
 
     self.pi_: np.ndarray of shape (n_classes)
-        The estimated class probabilities. To be set in `GaussianNaiveBayes.fit`
+        The estimated class probabilities. To be set in `LDA.fit`
     """
     def __init__(self):
         """
@@ -46,7 +46,17 @@ class LDA(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        raise NotImplementedError()
+        self.classes_ = np.unique(y)
+        self.pi_ = np.array([(y == label).sum() / y.shape[0] for i, label in enumerate(self.classes_)])
+        self.mu_ = np.zeros((self.classes_.shape[0], X.shape[1]))
+        for i, label in enumerate(self.classes_):
+            self.mu_[i] = X[np.where(y == label)].sum(axis=0) / (y == label).sum()
+
+        for i, label in enumerate(self.classes_):
+            X[np.where(y == label)] = X[np.where(y == label)] - self.mu_[i]
+
+        self.cov_ = np.cov(X.T, ddof=self.classes_.shape[0])
+        self._cov_inv = np.linalg.inv(self.cov_)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -62,7 +72,7 @@ class LDA(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        return
 
     def likelihood(self, X: np.ndarray) -> np.ndarray:
         """
