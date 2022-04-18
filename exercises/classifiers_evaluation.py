@@ -1,7 +1,11 @@
+import pandas as pd
+
 from IMLearn.learners.classifiers import Perceptron, LDA, GaussianNaiveBayes
 from typing import Tuple
 from utils import *
 import plotly.graph_objects as go
+import plotly.express as px
+import plotly.io as pio
 from plotly.subplots import make_subplots
 from math import atan2, pi
 
@@ -26,8 +30,7 @@ def load_dataset(filename: str) -> Tuple[np.ndarray, np.ndarray]:
 
     """
     data = np.load(filename)
-    return data[:, :2], data[:, 2].astype(int)
-
+    return data[:, 0:2], data[:, 2]
 
 def run_perceptron():
     """
@@ -38,14 +41,22 @@ def run_perceptron():
     """
     for n, f in [("Linearly Separable", "linearly_separable.npy"), ("Linearly Inseparable", "linearly_inseparable.npy")]:
         # Load dataset
-        raise NotImplementedError()
+        X, y = load_dataset(f)
 
         # Fit Perceptron and record loss in each fit iteration
         losses = []
-        raise NotImplementedError()
+        classifier = Perceptron(callback=lambda p, x_, y_: losses.append(p.loss(X,y)))
+        classifier.fit(X, y)
 
         # Plot figure of loss as function of fitting iteration
-        raise NotImplementedError()
+
+        df = pd.DataFrame(dict(losses=losses, iterations=list(range(len(losses)))))
+        fig = px.line(df, x="iterations", y="losses")
+        fig.update_layout(title={
+            'text': f"miss classification loss(y) as a function of precptron iterations - {n}",
+            'y': 0.95, 'x': 0.5, 'xanchor': 'center', 'yanchor': 'top'})
+        fig['layout']['title']['font'] = dict(size=20)
+        fig.show()
 
 
 def get_ellipse(mu: np.ndarray, cov: np.ndarray):
