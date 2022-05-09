@@ -79,6 +79,8 @@ class Perceptron(BaseEstimator):
             self.coefs_, self.fitted_ = w, True
             while iterations > 0:
                 y_pred = samples @ w
+                y_pred[np.where(y_pred < 0)] = -1
+                y_pred[np.where(y_pred >= 0)] = 1
                 loss = loss_functions.misclassification_error(labels, y_pred, False)
                 if loss == 0:
                     self.coefs_ = w
@@ -112,7 +114,10 @@ class Perceptron(BaseEstimator):
         """
         if self.include_intercept_:
             X = np.insert(X, 0, [1] * X.shape[0], axis=1)
-        return X @ self.coefs_
+        pred = X @ self.coefs_
+        pred[np.where(pred < 0)] = -1
+        pred[np.where(pred >= 0)] = 1
+        return pred
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -131,5 +136,5 @@ class Perceptron(BaseEstimator):
         loss : float
             Performance under missclassification loss function
         """
-        return loss_functions.misclassification_error(y, self._predict(X), False)
+        return loss_functions.misclassification_error(y, self._predict(X))
 
